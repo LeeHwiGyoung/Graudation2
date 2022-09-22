@@ -1,6 +1,5 @@
 package com.example.myapplication;
 
-import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
@@ -51,30 +49,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         RecyclerViewAdapter.ViewHolder viewHolder = new RecyclerViewAdapter.ViewHolder(view);
 
         return viewHolder;
-        /*Context context = parent.getContext();
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View view = inflater.inflate(R.layout.view_holder_item, parent, false);
-        ViewHolder viewHolder = new ViewHolder(context, view);
-        //RecyclerViewAdapter.ViewHolder vh = new RecyclerViewAdapter.ViewHolder(view);
-
-        return viewHolder;*/
     }
 
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
-        //TransferItem item = mData.get(position);
+
         RecyclerViewItem item = mData.get(position);
         holder.time.setText(item.getTime()); //정류소 이름
         holder.fname.setText(item.getFname());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() { //다음 액티비티로 넘어감
             @Override
             public void onClick(View view) {
                 Intent intent =  new Intent(view.getContext(), MainActivity3.class);
                 intent.putExtra("time" , mData.get(position).getTime());
                 intent.putExtra("fname" , mData.get(position).getFname());
-                intent.putExtra("transferItem", mData.get(position).getTransferItems().get(0));
+                intent.putExtra("transferItem", mData.get(position).getTransferItems().get(0)); //이게 대부분이 정보를 갖고 있음
                 view.getContext().startActivity(intent);
                 Toast.makeText(view.getContext(), "클릭 되었습니다.", Toast.LENGTH_SHORT).show();
 

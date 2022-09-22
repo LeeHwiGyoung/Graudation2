@@ -20,22 +20,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 //이 엑티비티에선 메인 엑티비티에서 전송 받은 좌표로 api를 호출하고 listview에 띄워줌
+//메인액티비티 3으로 넘어가는 intent는 RecyclerViewAdapter Class에서 선언됨
 //서울특별시_정류소정보조회 서비스
 public class MainActivity2 extends AppCompatActivity {
     private Intent intent;
     private ArrayList<TransferItem> mylist;
-    RecyclerViewAdapter myAdapter;
-    ArrayList<RecyclerViewItem> Rylist;
+    private RecyclerViewAdapter myAdapter;
+    private ArrayList<RecyclerViewItem> Rylist;
     private TransferAPI transferAPI;
 
     private String Transfer_key = "uJVPZ36cG4TAmsXg9mpWZHtlod+uxSREmceXmb8+hOU2NDP2G2XcyW4KOua4/PMe+I1P5/MemCn1pNVoNQS8Iw=="; //환승시 사용하는 요청키
     private String type = "json"; // 요청타입
-    /* private String startX = "126.9243"; // 홍익대학교 앞
-      private String startY = "37.5528";
-      private String endX = "126.928824"; // 연세대앞
-      private String endY = "37.5681";
 
-  */
     private String startX;// 홍익대학교 앞
     private String startY;
     private String endX;; // 연세대앞
@@ -47,24 +43,23 @@ public class MainActivity2 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
-        intent = getIntent();
-        startX = intent.getStringExtra("startX");
+        intent = getIntent(); //인텐트 신호를 받음
+        startX = intent.getStringExtra("startX"); //인텐트에서 좌표 추출
         startY = intent.getStringExtra("startY");
         endX = intent.getStringExtra("endX");
         endY = intent.getStringExtra("endY");
-        Button button = findViewById(R.id.button);
+        Button button = findViewById(R.id.button); // 데이터 확인용
 
-        RecyclerView mRecyclerView = findViewById(R.id.recyclerview);
-        //mylist = new ArrayList<>();
-        Rylist = new ArrayList<>();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager((Context) this);
-        mRecyclerView.setLayoutManager(linearLayoutManager);
-        myAdapter = new RecyclerViewAdapter(Rylist);
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL,false));
-        mRecyclerView.setAdapter(myAdapter);
+        RecyclerView mRecyclerView = findViewById(R.id.recyclerview); // 리사이클러뷰 참조
+        Rylist = new ArrayList<>(); //리사이클러뷰에 사용되는 ArrayList
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager((Context) this); //리사이클러뷰에서 사용되는 레이아웃 매니저
+        mRecyclerView.setLayoutManager(linearLayoutManager); //셋 매니저
+        myAdapter = new RecyclerViewAdapter(Rylist); //뷰와 데이터를 연결해주는 어댑터 데이터로 Rylist가 사용
+        mRecyclerView.setAdapter(myAdapter); //어뎁터 셋팅
 
-        Transfer_Info();
-        button.setOnClickListener(new View.OnClickListener() {
+        Transfer_Info(); //환승 정보를 받아옴
+
+        button.setOnClickListener(new View.OnClickListener() { //데이터 확인용
             @Override
             public void onClick(View view) {
                 for(int i = 0 ; i < myAdapter.getItemCount(); i++){
@@ -80,19 +75,13 @@ public class MainActivity2 extends AppCompatActivity {
                         Log.d("fx" , String.valueOf(Rylist.get(i).getTransferItems().get(0).getPathItemList().get(j).getFx()));
                         Log.d("fy" , String.valueOf(Rylist.get(i).getTransferItems().get(0).getPathItemList().get(j).getFy()));
                     }
-                    //Log.d("size" , String.valueOf(Rylist.get(i).getTransferItems().get(0).getPathItemList().size()));
-                    /*Log.d("버스번호" ,Rylist.get(i).getTransferItems().getPathItemList().get(0).getRouteNm());
-                    Log.d("ItemTransferItem.time" , String.valueOf(Rylist.get(i).getTransferItems().getTime()));
-                    Log.d("itemTransferItem fname" , Rylist.get(i).getTransferItems().getPathItemList().get(0).getFname());
-                    Log.d("fx" , String.valueOf(Rylist.get(i).getTransferItems().getPathItemList().get(0).getFx()));
-                    Log.d("fy" , String.valueOf(Rylist.get(i).getTransferItems().getPathItemList().get(0).getFy()));*/
                 }
 
             }
         });
 
     }
-    private void addItem(String time, String fname , ArrayList<TransferItem> transferItems){
+    private void addItem(String time, String fname , ArrayList<TransferItem> transferItems){ //rylist에 데이터 넣기 위한 함수 transferInfo 내에서 선언됨
         RecyclerViewItem item = new RecyclerViewItem();
 
         item.setTime(time);
@@ -103,7 +92,6 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
 
-    //item list = 20개
     void Transfer_Info() {
         RetrofitTransferClient retrofitTransferClient = RetrofitTransferClient.getInstance();
         if (retrofitTransferClient != null) {
@@ -113,18 +101,17 @@ public class MainActivity2 extends AppCompatActivity {
                 public void onResponse(Call<Transfer> call, Response<Transfer> response) {
                     if(response.isSuccessful()) {
                         mylist =  response.body().getTmsgBody().getItemList();
-                        Log.d("String 결과값", "response.body().toString() : " + response.body().toString());
-                        Collections.sort(mylist);
-                        for(int i = 0 ; i <mylist.size() ; i++) {
-                            if(mylist.get(i).getPathItemList().size() <= 2) {
-                                ArrayList<TransferItem> temp = new ArrayList<>();
-                                temp.add(mylist.get(i));
-                                String time = String.valueOf(mylist.get(i).getTime());
-                                String Fname = mylist.get(i).getPathItemList().get(0).getFname();
+                        Collections.sort(mylist); //TransferItem 클래스 내에 comparable to 선언 sort 환승이 적은 순으로 정렬하고 같을 때는 시간순으로 정렬
+                        for(int i = 0 ; i <mylist.size() ; i++) { //받아온 itemlist의 크기 만큼 반복
+                            if(mylist.get(i).getPathItemList().size() <= 2) { //환승 1번까지만
+                                ArrayList<TransferItem> temp = new ArrayList<>(); //데이터 추가에 사용됨
+                                temp.add(mylist.get(i)); //get(i)는 i번째 itemlist로 모든 환승 정보를 갖고 있음
+                                String time = String.valueOf(mylist.get(i).getTime()); // 수정필요
+                                String Fname = mylist.get(i).getPathItemList().get(0).getFname(); //수정필요
                                 addItem(time , Fname , temp) ;
                             }
                         }
-                        myAdapter.notifyDataSetChanged();
+                        myAdapter.notifyDataSetChanged(); //어뎁터에 있는 데이터 셋이 바뀌면 화면에 바뀐 데이터를 띄워줌
                     }
                     else{
                         Log.d("onResponse 실패",  "onResponse 실패");

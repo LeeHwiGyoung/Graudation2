@@ -20,17 +20,17 @@ public class MainActivity3 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
-        intent = getIntent();
-        time = intent.getStringExtra("time");
-        fname = intent.getStringExtra("fname");
-        transferlist = (TransferItem) intent.getSerializableExtra("transferItem");
+        intent = getIntent(); //엑티비티 2에서 받아올 정보를 위해 선언된 인텐트
+        time = intent.getStringExtra("time"); //시간추출
+        fname = intent.getStringExtra("fname"); //정류장이름 추출
+        transferlist = (TransferItem) intent.getSerializableExtra("transferItem"); //transferlist추출 -> 이게 주 데이터
         timetext = findViewById(R.id.textView3);
         fnametext = findViewById(R.id.textView4);
 
         timetext.setText(time + "을 버스타고 이동합니다.");
         fnametext.setText(fname + "에서 탑승합니다.");
 
-        Log.d("transferItem 내부 time", String.valueOf(transferlist.getTime()));
+        Log.d("transferItem 내부 time", String.valueOf(transferlist.getTime())); //데이터 확인용
         for (int i = 0; i < transferlist.getPathItemList().size(); i++) {
             Log.d("버스번호", transferlist.getPathItemList().get(i).getRouteNm());
             Log.d("itemTransferItem fname", transferlist.getPathItemList().get(i).getFname());
