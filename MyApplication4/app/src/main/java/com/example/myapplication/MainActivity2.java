@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.myapplication.transfer.RetrofitTransferClient;
+import com.example.myapplication.transfer.Transfer;
+import com.example.myapplication.transfer.TransferAPI;
+import com.example.myapplication.transfer.TransferItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,29 +34,26 @@ public class MainActivity2 extends AppCompatActivity {
     private RecyclerViewAdapter myAdapter;
     private ArrayList<RecyclerViewItem> Rylist;
     private TransferAPI transferAPI;
-
     private String Transfer_key = "uJVPZ36cG4TAmsXg9mpWZHtlod+uxSREmceXmb8+hOU2NDP2G2XcyW4KOua4/PMe+I1P5/MemCn1pNVoNQS8Iw=="; //환승시 사용하는 요청키
     private String type = "json"; // 요청타입
-
-    private String startX;// 홍익대학교 앞
-    private String startY;
     private String endX;; // 연세대앞
     private String endY;
-
-
+    private String startX = "126.9243"; // 홍익대학교 앞
+    private String startY = "37.5528";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         intent = getIntent(); //인텐트 신호를 받음
-        startX = intent.getStringExtra("startX"); //인텐트에서 좌표 추출
-        startY = intent.getStringExtra("startY");
+        // 인텐트에서 좌표 추출
         endX = intent.getStringExtra("endX");
         endY = intent.getStringExtra("endY");
-        Button button = findViewById(R.id.button); // 데이터 확인용
+        //Button button = findViewById(R.id.button); // 데이터 확인용
 
         RecyclerView mRecyclerView = findViewById(R.id.recyclerview); // 리사이클러뷰 참조
+        RecyclerViewDeco itemDeco = new RecyclerViewDeco(20);
+        mRecyclerView.addItemDecoration(itemDeco);
         Rylist = new ArrayList<>(); //리사이클러뷰에 사용되는 ArrayList
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager((Context) this); //리사이클러뷰에서 사용되는 레이아웃 매니저
         mRecyclerView.setLayoutManager(linearLayoutManager); //셋 매니저
@@ -59,13 +62,13 @@ public class MainActivity2 extends AppCompatActivity {
 
         Transfer_Info(); //환승 정보를 받아옴
 
-        button.setOnClickListener(new View.OnClickListener() { //데이터 확인용
+       /* button.setOnClickListener(new View.OnClickListener() { //데이터 확인용
             @Override
             public void onClick(View view) {
                 for(int i = 0 ; i < myAdapter.getItemCount(); i++){
                     Log.d("i" , i+"번" );
                     Log.d("time" , Rylist.get(i).getTime());
-                    Log.d("fname" ,Rylist.get(i).getFname());
+                    Log.d("fname" ,Rylist.get(i).getStation());
                     Log.d("transferItem" , String.valueOf(Rylist.get(i).getTransferItems()));
                     Log.d("ItemTransferItem.time" , String.valueOf(Rylist.get(i).getTransferItems().get(0).getTime()));
                     for(int j = 0 ; j < Rylist.get(i).getTransferItems().get(0).getPathItemList().size();j++){
@@ -78,14 +81,14 @@ public class MainActivity2 extends AppCompatActivity {
                 }
 
             }
-        });
+        });*/
 
     }
-    private void addItem(String time, String fname , ArrayList<TransferItem> transferItems){ //rylist에 데이터 넣기 위한 함수 transferInfo 내에서 선언됨
+    private void addItem(String time, String station , ArrayList<TransferItem> transferItems){ //rylist에 데이터 넣기 위한 함수 transferInfo 내에서 선언됨
         RecyclerViewItem item = new RecyclerViewItem();
 
         item.setTime(time);
-        item.setFname(fname);
+        item.setStation(station);
         item.setTransferItems(transferItems);
 
         Rylist.add(item);
@@ -98,7 +101,7 @@ public class MainActivity2 extends AppCompatActivity {
             transferAPI = RetrofitTransferClient.getTransferAPI();
             transferAPI.getTransfer(Transfer_key, startX, startY, endX, endY, type).enqueue(new Callback<Transfer>() {
                 @Override
-                public void onResponse(Call<Transfer> call, Response<Transfer> response) {
+                public void onResponse(@NonNull Call<Transfer> call,@NonNull Response<Transfer> response) {
                     if(response.isSuccessful()) {
                         mylist =  response.body().getTmsgBody().getItemList();
                         Collections.sort(mylist); //TransferItem 클래스 내에 comparable to 선언 sort 환승이 적은 순으로 정렬하고 같을 때는 시간순으로 정렬
@@ -115,12 +118,13 @@ public class MainActivity2 extends AppCompatActivity {
                     }
                     else{
                         Log.d("onResponse 실패",  "onResponse 실패");
+                        Toast.makeText(MainActivity2.this ,"onResponse" , Toast.LENGTH_SHORT ).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Transfer> call, Throwable t) {
-                    Toast.makeText(MainActivity2.this, "network failure", Toast.LENGTH_SHORT).show();
+
                 }
             });
         }

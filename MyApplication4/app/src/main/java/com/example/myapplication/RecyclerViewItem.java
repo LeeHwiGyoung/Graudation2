@@ -1,10 +1,12 @@
 package com.example.myapplication;
 
+import com.example.myapplication.transfer.TransferItem;
+
 import java.util.ArrayList;
 
 public class RecyclerViewItem {
     private String time;
-    private String fname;
+    private String station;
     private ArrayList<TransferItem> transferItems = null;
 
     public ArrayList<TransferItem> getTransferItems() {
@@ -15,8 +17,8 @@ public class RecyclerViewItem {
         this.transferItems = transferItems;
     }
 
-    public String getFname() {
-        return fname;
+    public String getStation() {
+        return station;
     }
 
     public String getTime() {
@@ -27,7 +29,7 @@ public class RecyclerViewItem {
         this.time = time;
     }
 
-    public void setFname(String fname) {
-        this.fname = fname;
+    public void setStation(String station) {
+        this.station = station;
     }
 }

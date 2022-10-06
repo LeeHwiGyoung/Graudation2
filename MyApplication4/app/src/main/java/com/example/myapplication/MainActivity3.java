@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.example.myapplication.transfer.TransferItem;
 
 public class MainActivity3 extends AppCompatActivity {
     private TextView fnametext;
@@ -22,7 +22,7 @@ public class MainActivity3 extends AppCompatActivity {
         setContentView(R.layout.activity_main3);
         intent = getIntent(); //엑티비티 2에서 받아올 정보를 위해 선언된 인텐트
         time = intent.getStringExtra("time"); //시간추출
-        fname = intent.getStringExtra("fname"); //정류장이름 추출
+        fname = intent.getStringExtra("station"); //정류장이름 추출
         transferlist = (TransferItem) intent.getSerializableExtra("transferItem"); //transferlist추출 -> 이게 주 데이터
         timetext = findViewById(R.id.textView3);
         fnametext = findViewById(R.id.textView4);
