@@ -13,12 +13,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.tts.SingleTonTTS;
+
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
     private ArrayList<RecyclerViewItem> mData = null;
     private ViewHolder holder;
     private long delay = 0; // 더블클릭용
+    SingleTonTTS tts;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView time;
@@ -49,7 +52,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.view_holder_item,parent,false);
         RecyclerViewAdapter.ViewHolder viewHolder = new RecyclerViewAdapter.ViewHolder(view);
-
+        tts = tts.getInstance();
+        tts.init(view.getContext());
         return viewHolder;
     }
 
@@ -57,26 +61,32 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
         RecyclerViewItem item = mData.get(position);
-        int num = item.getTransferItems().get(0).getPathItemList().size() - 1;
-        String text = String.valueOf(num);
-        holder.time.setText(item.getTime()); //정류소 이름
+        holder.time.setText( item.getTime() + "분"); //정류소 이름
         holder.station.setText(item.getStation());
-        holder.transferNm.setText(text);
-        holder.routeNm.setText(item.getTransferItems().get(0).getPathItemList().get(0).getRouteNm());
+        holder.transferNm.setText("탑승 횟수 : "+ String.valueOf(item.getTransferItems().get(0).getPathItemList().size()));
+        holder.routeNm.setText(item.getTransferItems().get(0).getPathItemList().get(0).getRouteNm() );
 
         holder.itemView.setOnClickListener(new View.OnClickListener() { //다음 액티비티로 넘어감
             @Override
             public void onClick(View view) {
-                /*if(System.currentTimeMillis() > delay){ //1번 클릭
+                if(System.currentTimeMillis() > delay){
                     delay = System.currentTimeMillis() + 300;
-                    tts.speak();
-                }*/
-                Intent intent =  new Intent(view.getContext(), MainActivity3.class);
-                intent.putExtra("time" , mData.get(holder.getAdapterPosition()).getTime());
-                intent.putExtra("station" , mData.get(holder.getAdapterPosition()).getStation());
-                intent.putExtra("transferItem", mData.get(holder.getAdapterPosition()).getTransferItems().get(0)); //이게 대부분이 정보를 갖고 있음
-                view.getContext().startActivity(intent);
-                Toast.makeText(view.getContext(), "클릭 되었습니다.", Toast.LENGTH_SHORT).show();
+                    tts.stop();
+                    tts.speak(mData.get(holder.getAdapterPosition()).getTransferItems().get(0).getPathItemList().get(0).getRouteNm() + "번 버스를" +
+                            mData.get(holder.getAdapterPosition()).getStation() + "에서 타고 이동합니다." + "버스 탑승 시간은" + mData.get(holder.getAdapterPosition()).getTime()
+                            +"분 정도 소요되며 버스 탑승 횟수는" + mData.get(holder.getAdapterPosition()).getTransferItems().get(0).getPathItemList().size() + "번 입니다" );
+                    return;
+                }
+                if(System.currentTimeMillis() <= delay) {
+                    tts.stop();
+                    Intent intent =  new Intent(view.getContext(), MainActivity3.class);
+                    intent.putExtra("time" , mData.get(holder.getAdapterPosition()).getTime());
+                    intent.putExtra("station" , mData.get(holder.getAdapterPosition()).getStation());
+                    intent.putExtra("transferItem", mData.get(holder.getAdapterPosition()).getTransferItems().get(0)); //이게 대부분이 정보를 갖고 있음
+                    view.getContext().startActivity(intent);
+                    Toast.makeText(view.getContext(), "클릭 되었습니다.", Toast.LENGTH_SHORT).show();
+
+                }
 
             }
         });

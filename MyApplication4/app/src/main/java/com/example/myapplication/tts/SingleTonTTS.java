@@ -9,7 +9,7 @@ import java.util.Locale;
 
 public class SingleTonTTS {
     public static TextToSpeech tts;
-
+    public static final int QUEUE_FLUSH = 0;
     private static SingleTonTTS ttsInstance = new SingleTonTTS();
     private Context appContext;
     private SingleTonTTS() { }
@@ -31,7 +31,7 @@ public class SingleTonTTS {
     public void stop(){
         tts.stop();
     }
-
+    public boolean speaking() {return tts.isSpeaking();}
     public void speak(String text) {
         tts = new TextToSpeech(get(), new TextToSpeech.OnInitListener() {
 
@@ -42,7 +42,7 @@ public class SingleTonTTS {
                     if(result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA){
                         //Log.e("TTS", "This Language is not supported");
                     }else{
-                        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+                        tts.speak(text, QUEUE_FLUSH, null, null);
                     }
                 }else{
                     //Log.e("TTS", "Initialization Failed!");

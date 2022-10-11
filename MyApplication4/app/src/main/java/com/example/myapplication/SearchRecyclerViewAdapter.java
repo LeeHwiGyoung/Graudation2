@@ -30,7 +30,6 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         SearchRecyclerViewAdapter.ViewHolder viewHolder = new SearchRecyclerViewAdapter.ViewHolder(view);
         tts = tts.getInstance();
         tts.init(view.getContext());
-
         return viewHolder;
     }
 
@@ -44,10 +43,12 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
             public void onClick(View view) {
                 if(System.currentTimeMillis() > delay){
                     delay = System.currentTimeMillis() + 300;
+                    tts.stop();
                     tts.speak(mData.get(holder.getAdapterPosition()).getTitle());
                     return;
                 }
                 if(System.currentTimeMillis() <= delay) {
+                    tts.stop();
                     Intent intent = new Intent(view.getContext(), MainActivity2.class);
                     intent.putExtra("title", mData.get(holder.getAdapterPosition()).getTitle());
                     intent.putExtra("endX", mData.get(holder.getAdapterPosition()).getX());

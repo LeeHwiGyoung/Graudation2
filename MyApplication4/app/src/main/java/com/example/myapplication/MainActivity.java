@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -62,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private SpeechRecognizer mRecognizer;
 
     SingleTonTTS tts;
-
+    private SoundPool soundPool; //btn 사운드
+    int soundPlay;
     private ArrayList<SearchRecyclerViewItem> Rylist; //리사이클러뷰에 사용할 아이템
     private SearchRecyclerViewAdapter myAdapter; //리사이클러뷰 어댑터
 
@@ -94,13 +97,19 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(itemDeco);
 
 
+
+        soundPool = new SoundPool(3, AudioManager.STREAM_MUSIC , 0);
+        soundPlay = soundPool.load(this, R.raw.sound, 1);
+
+
         sttButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                tts.stop();
+                soundPool.play(soundPlay,1f,1f,0,0,1f);
                 mRecognizer = SpeechRecognizer.createSpeechRecognizer(MainActivity.this);// 새 SpeechRecognizer 를 만드는 팩토리 메서드
                 mRecognizer.setRecognitionListener(listener); // 리스너 설정
                 mRecognizer.startListening(RecognizeIntent); // 듣기 시작
-
             }
         });
 
@@ -157,13 +166,14 @@ public class MainActivity extends AppCompatActivity {
                     message = "버튼을 다시 눌러서 말씀해주세요";
                     break;
             }
-            //tts.speak(message);
+            tts.speak(message);
         }
 
         @Override
         public void onResults(Bundle results) {
             // 인식 결과가 준비되면 호출
             // 말을 하면 ArrayList에 단어를 넣고 textView에 단어를 이어줌
+            soundPool.play(soundPlay,1f,1f,0,0,1f);
             Rylist = new ArrayList<>(); //리사이클러뷰에 사용되는 ArrayList
             mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this)); //셋 매니저
             myAdapter = new SearchRecyclerViewAdapter(Rylist); //뷰와 데이터를 연결해주는 어댑터 데이터로 Rylist가 사용
@@ -219,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                             myAdapter.notifyDataSetChanged();
                         }
                         else if(status.equals("NOT_FOUND")){
-                            Toast.makeText(MainActivity.this, "검색 결과 없음", Toast.LENGTH_SHORT).show();
+                            tts.speak("검색 결과가 없습니다.");
                         }
                         else {
                             Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
