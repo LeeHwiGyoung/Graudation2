@@ -21,6 +21,9 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
     private ViewHolder holder;
     private long delay = 0;
     SingleTonTTS tts;
+    String startX;
+    String startY;
+
 
     @NonNull
     @Override
@@ -51,6 +54,8 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
                     tts.stop();
                     Intent intent = new Intent(view.getContext(), MainActivity2.class);
                     intent.putExtra("title", mData.get(holder.getAdapterPosition()).getTitle());
+                    intent.putExtra("startX", startX);
+                    intent.putExtra("startY", startY);
                     intent.putExtra("endX", mData.get(holder.getAdapterPosition()).getX());
                     intent.putExtra("endY", mData.get(holder.getAdapterPosition()).getY());
                     view.getContext().startActivity(intent);
@@ -78,7 +83,19 @@ public class SearchRecyclerViewAdapter extends RecyclerView.Adapter<SearchRecycl
         mData = data;
     }
 
+    public String getStartX() {
+        return startX;
+    }
 
+    public String getStartY() {
+        return startY;
+    }
 
+    public void setStartX(String startX) {
+        this.startX = startX;
+    }
 
+    public void setStartY(String startY) {
+        this.startY = startY;
+    }
 }

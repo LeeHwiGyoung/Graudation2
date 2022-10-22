@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
@@ -16,6 +17,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -26,6 +28,9 @@ import com.example.myapplication.search.RetrofitSearchClient;
 import com.example.myapplication.search.Search;
 import com.example.myapplication.search.SearchAPI;
 import com.example.myapplication.tts.SingleTonTTS;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 
@@ -55,6 +60,12 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ItemsEntity> item;  //검색 API 결과를 받아들일 어레이리스트
     private SearchAPI searchAPI; //검색 API 호출에 사용하는 클라이언트
 
+    private String startX = "126.9243"; // 홍익대학교 앞
+    private String startY  = "37.5528";
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+
     private RecyclerView mRecyclerView;
 
     private TextView sttText; //STT 검색 결과
@@ -73,6 +84,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        /*fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+            if(location != null){
+
+                startX = String.valueOf(location.getLongitude());
+                startY = String.valueOf(location.getLatitude());
+
+                Log.e("??", startX);
+            }
+        });*/
 
         if(Build.VERSION.SDK_INT >= 23){
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET,
@@ -177,6 +211,8 @@ public class MainActivity extends AppCompatActivity {
             Rylist = new ArrayList<>(); //리사이클러뷰에 사용되는 ArrayList
             mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this)); //셋 매니저
             myAdapter = new SearchRecyclerViewAdapter(Rylist); //뷰와 데이터를 연결해주는 어댑터 데이터로 Rylist가 사용
+            myAdapter.setStartX(startX);
+            myAdapter.setStartY(startY);
             mRecyclerView.setAdapter(myAdapter);
 
             ArrayList<String> matches =

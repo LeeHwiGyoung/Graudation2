@@ -32,10 +32,10 @@ public class MainActivity3 extends AppCompatActivity {
 
         Log.d("transferItem 내부 time", String.valueOf(transferlist.getTime())); //데이터 확인용
         for (int i = 0; i < transferlist.getPathItemList().size(); i++) {
-            Log.d("버스번호", transferlist.getPathItemList().get(i).getRouteNm());
-            Log.d("itemTransferItem fname", transferlist.getPathItemList().get(i).getFname());
-            Log.d("fx", String.valueOf(transferlist.getPathItemList().get(i).getFx()));
-            Log.d("fy", String.valueOf(transferlist.getPathItemList().get(i).getFy()));
+                Log.d("버스번호", transferlist.getPathItemList().get(i).getRouteNm());
+                Log.d("itemTransferItem fname", transferlist.getPathItemList().get(i).getFname());
+                Log.d("fx", String.valueOf(transferlist.getPathItemList().get(i).getFx()));
+                Log.d("fy", String.valueOf(transferlist.getPathItemList().get(i).getFy()));
         }
     }
 }

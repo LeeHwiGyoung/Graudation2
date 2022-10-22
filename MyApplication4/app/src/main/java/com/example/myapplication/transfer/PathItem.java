@@ -20,10 +20,10 @@ public class PathItem implements Serializable {
     private  String fid;
     @SerializedName("fx")
     @Expose
-    private double fx;
+    private String fx;
     @SerializedName("fy")
     @Expose
-    private double fy;
+    private String fy;
     @SerializedName("tname")
     @Expose
     private String tname;
@@ -55,11 +55,11 @@ public class PathItem implements Serializable {
     {
         return fid;
     }
-    public double getFx()
+    public String getFx()
     {
         return fx;
     }
-    public double getFy()
+    public String getFy()
     {
         return fy;
     }
@@ -99,11 +99,11 @@ public class PathItem implements Serializable {
         this.tid = tid;
     }
 
-    public void setFy(double fy) {
+    public void setFy(String fy) {
         this.fy = fy;
     }
 
-    public void setFx(double fx) {
+    public void setFx(String fx) {
         this.fx = fx;
     }
 

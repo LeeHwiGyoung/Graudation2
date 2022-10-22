@@ -22,6 +22,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ViewHolder holder;
     private long delay = 0; // 더블클릭용
     SingleTonTTS tts;
+    String endX;
+    String endY;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView time;
@@ -77,14 +79,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                             +"분 정도 소요되며 버스 탑승 횟수는" + mData.get(holder.getAdapterPosition()).getTransferItems().get(0).getPathItemList().size() + "번 입니다" );
                     return;
                 }
+
                 if(System.currentTimeMillis() <= delay) {
                     tts.stop();
-                    Intent intent =  new Intent(view.getContext(), MainActivity3.class);
+                    Intent intent =  new Intent(view.getContext(), busActivity.class);
+                    intent.putExtra("endX" , endX);
+                    intent.putExtra("endY", endY);
                     intent.putExtra("time" , mData.get(holder.getAdapterPosition()).getTime());
                     intent.putExtra("station" , mData.get(holder.getAdapterPosition()).getStation());
                     intent.putExtra("transferItem", mData.get(holder.getAdapterPosition()).getTransferItems().get(0)); //이게 대부분이 정보를 갖고 있음
                     view.getContext().startActivity(intent);
-                    Toast.makeText(view.getContext(), "클릭 되었습니다.", Toast.LENGTH_SHORT).show();
 
                 }
 
@@ -98,6 +102,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return mData.size();
     }
 
+    public String getEndX() {
+        return endX;
+    }
 
+    public String getEndY() {
+        return endY;
+    }
 
+    public void setEndX(String endX) {
+        this.endX = endX;
+    }
+
+    public void setEndY(String endY) {
+        this.endY = endY;
+    }
 }

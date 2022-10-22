@@ -2,11 +2,16 @@ package com.example.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +22,9 @@ import com.example.myapplication.transfer.RetrofitTransferClient;
 import com.example.myapplication.transfer.Transfer;
 import com.example.myapplication.transfer.TransferAPI;
 import com.example.myapplication.transfer.TransferItem;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +46,12 @@ public class MainActivity2 extends AppCompatActivity {
     private String type = "json"; // 요청타입
     private String endX;; // 연세대앞
     private String endY;
-    private String startX = "126.9243"; // 홍익대학교 앞
-    private String startY = "37.5528";
+    private String startX; //= "126.9243"; // 홍익대학교 앞
+    private String startY; // = "37.5528";
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +61,22 @@ public class MainActivity2 extends AppCompatActivity {
         // 인텐트에서 좌표 추출
         endX = intent.getStringExtra("endX");
         endY = intent.getStringExtra("endY");
+        startX = intent.getStringExtra("startX");
+        startY = intent.getStringExtra("startY");
+        Log.i("start", startX);
         //Button button = findViewById(R.id.button); // 데이터 확인용
 
-        RecyclerView mRecyclerView = findViewById(R.id.recyclerview); // 리사이클러뷰 참조
+
+
+        mRecyclerView = findViewById(R.id.recyclerview); // 리사이클러뷰 참조
         RecyclerViewDeco itemDeco = new RecyclerViewDeco(20);
         mRecyclerView.addItemDecoration(itemDeco);
         Rylist = new ArrayList<>(); //리사이클러뷰에 사용되는 ArrayList
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager((Context) this); //리사이클러뷰에서 사용되는 레이아웃 매니저
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager((Context) this.getApplicationContext()); //리사이클러뷰에서 사용되는 레이아웃 매니저
         mRecyclerView.setLayoutManager(linearLayoutManager); //셋 매니저
         myAdapter = new RecyclerViewAdapter(Rylist); //뷰와 데이터를 연결해주는 어댑터 데이터로 Rylist가 사용
+        myAdapter.setEndX(endX);
+        myAdapter.setEndY(endY);
         mRecyclerView.setAdapter(myAdapter); //어뎁터 셋팅
 
         Transfer_Info(); //환승 정보를 받아옴
@@ -99,6 +118,8 @@ public class MainActivity2 extends AppCompatActivity {
         RetrofitTransferClient retrofitTransferClient = RetrofitTransferClient.getInstance();
         if (retrofitTransferClient != null) {
             transferAPI = RetrofitTransferClient.getTransferAPI();
+            Log.e("start", startX);
+            Log.e("start", startY);
             transferAPI.getTransfer(Transfer_key, startX, startY, endX, endY, type).enqueue(new Callback<Transfer>() {
                 @Override
                 public void onResponse(@NonNull Call<Transfer> call,@NonNull Response<Transfer> response) {
@@ -114,6 +135,7 @@ public class MainActivity2 extends AppCompatActivity {
                                 addItem(time , Fname , temp) ;
                             }
                         }
+
                         myAdapter.notifyDataSetChanged(); //어뎁터에 있는 데이터 셋이 바뀌면 화면에 바뀐 데이터를 띄워줌
                     }
                     else{
