@@ -9,6 +9,13 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" /> <!-- 카메라 -->
     <uses-permission android:name="android.permission.CAMERA" />
 
+<<<<<<< Updated upstream
+=======
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+>>>>>>> Stashed changes
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" /> <!-- 티맵 -->
@@ -49,6 +56,12 @@
             android:name=".MainActivity"
             android:exported="true" />
 
+<<<<<<< Updated upstream
+=======
+        <activity android:name=".Login2"
+            android:exported="true"/>
+
+>>>>>>> Stashed changes
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="%{MAPS_API_KEY}" />
@@ -61,10 +74,78 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<<<<<<< Updated upstream
+=======
+
+        <activity
+            android:name=".SendNotificationActivity"
+            android:exported="true">
+
+        </activity>
+
+        <activity
+            android:name=".BlindFormActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".BusFormActivity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".SignInActivity"
+            android:exported="true">
+
+        </activity>
+
+
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
+
+        <!--객체
+        <activity android:name="DetectorActivity"
+            android:exported="true"/>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="org.tensorflow.codelabs.objectdetection.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>-->
+
+        <!--텐서플로우 객체 인식-->
+        <activity
+            android:name=".TestActivity"
+            android:clearTaskOnLaunch="true"
+            android:theme="@style/Theme.MyApplication"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:rotationAnimation="seamless"
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            tools:targetApi="O">
+
+            <!-- Declare notch support -->
+            <meta-data android:name="android.notch_support" android:value="true"/>
+        </activity>
+
+        <activity android:name=".ChoiceActivity"/>
+
+        <service
+            android:name=".fcm.CloudMessaging"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+>>>>>>> Stashed changes
     </application>
 
 </manifest>

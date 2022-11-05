@@ -82,7 +82,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
                 if(System.currentTimeMillis() <= delay) {
                     tts.stop();
+<<<<<<< Updated upstream
                     Intent intent =  new Intent(view.getContext(), busActivity.class);
+=======
+                    Intent intent =  new Intent(view.getContext(), GeoActivity.class);
+>>>>>>> Stashed changes
                     intent.putExtra("endX" , endX);
                     intent.putExtra("endY", endY);
                     intent.putExtra("time" , mData.get(holder.getAdapterPosition()).getTime());

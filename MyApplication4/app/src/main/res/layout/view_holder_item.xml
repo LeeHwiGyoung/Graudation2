@@ -5,8 +5,9 @@
     android:layout_height="wrap_content"
     android:background="@drawable/busview"
     android:padding="12dp"
+    android:elevation="5dp"
     android:weightSum="10">
-
+    <!-->수정완<!-->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="60dp"
@@ -44,7 +45,7 @@
                 android:text="번호"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:focusable="true"
-                android:textColor="@color/black"
+                android:textColor="@color/buttonbackgroundcolor"
                 android:textSize="28dp" />
 
             <TextView
@@ -60,7 +61,7 @@
                 android:focusableInTouchMode="true"
                 android:text="정류장"
                 android:focusable="true"
-                android:textColor="@color/black"
+                android:textColor="@color/buttonbackgroundcolor"
                 android:textSize="28dp" />
         </LinearLayout>
 
@@ -84,7 +85,7 @@
                 android:singleLine="true"
                 android:text="소요시간"
                 android:focusable="true"
-                android:textColor="@color/black"
+                android:textColor="@color/buttonbackgroundcolor"
                 android:textSize="16dp" />
 
             <TextView
@@ -98,60 +99,10 @@
                 android:singleLine="true"
                 android:focusable="true"
                 android:text="환승횟수"
-                android:textColor="@color/black"
+                android:textColor="@color/buttonbackgroundcolor"
                 android:textSize="16dp" />
         </LinearLayout>
     </LinearLayout>
 
 
 </LinearLayout>
-
-    <!-->
-      <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="168dp"
-        android:background="#EBEBEB"
-        android:orientation="horizontal"
-        android:padding="12dp">
-
-
-        <TextView
-            android:layout_width="145dp"
-            android:layout_height="wrap_content"
-            android:background="#fff"
-            android:ellipsize="marquee"
-            android:singleLine="true" />
-
-        <TextView
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:background="#fff"
-            android:ellipsize="marquee"
-            android:singleLine="true" />
-
-
-
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#fff"
-        android:text="time"
-        android:textSize="32sp" />
-
-    <TextView
-        android:id="@+id/fname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#fff"
-        android:text="fname"
-        android:textSize="32sp" />
-      <TextView
-          android:id="@+id/fy"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          app:layout_constraintBottom_toBottomOf="parent"/>
-  <!-->

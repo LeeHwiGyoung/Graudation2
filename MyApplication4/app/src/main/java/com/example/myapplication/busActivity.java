@@ -62,6 +62,10 @@ public class busActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus);
         View view = findViewById(R.id.busRootView);
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         intent = getIntent();
         tts = tts.getInstance();
         tts.init(getApplicationContext());

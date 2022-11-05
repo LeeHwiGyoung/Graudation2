@@ -6,15 +6,16 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/searchitem"
+    android:elevation="5dp"
     >
-
+    <!-->수정완<!-->
     <ImageView
         android:layout_marginStart="3dp"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="center"
         android:src="@android:drawable/ic_menu_search"
-   />
+        />
 
     <TextView
         android:layout_gravity="center"
@@ -26,7 +27,7 @@
         android:text="동대문디지털프라자"
         android:fontFamily="@font/gangwon"
         android:padding="10dp"
-        android:textColor="@color/black"
+        android:textColor="@color/backgroundcolor"
         android:textSize="24dp" />
 
 
