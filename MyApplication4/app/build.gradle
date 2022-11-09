@@ -66,8 +66,6 @@ dependencies {
     implementation files('libs\\com.skt.Tmap_1.71.jar')
     //implementation files('libs\\gson-2.8.5.jar')
     implementation files('libs\\json-simple-1.1.1.jar')
-<<<<<<< Updated upstream
-=======
 
 
     //객체 탐지 추가
@@ -110,5 +108,4 @@ dependencies {
 
     implementation 'org.tensorflow:tensorflow-lite-task-vision-play-services:0.4.2'
     implementation 'com.google.android.gms:play-services-tflite-gpu:16.0.0'
->>>>>>> Stashed changes
 }

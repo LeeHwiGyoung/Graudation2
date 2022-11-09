@@ -142,7 +142,7 @@ public class ArrivalItem {
     @SerializedName("traTime2")
     @Expose
     private long traTime2;
-    @SerializedName(" vehId1")
+    @SerializedName("vehId1")
     @Expose
     private String  vehId1;
     @SerializedName("vehId2")

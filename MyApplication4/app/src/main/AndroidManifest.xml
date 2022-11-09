@@ -9,13 +9,10 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" /> <!-- 카메라 -->
     <uses-permission android:name="android.permission.CAMERA" />
 
-<<<<<<< Updated upstream
-=======
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
->>>>>>> Stashed changes
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" /> <!-- 티맵 -->
@@ -56,12 +53,9 @@
             android:name=".MainActivity"
             android:exported="true" />
 
-<<<<<<< Updated upstream
-=======
         <activity android:name=".Login2"
             android:exported="true"/>
 
->>>>>>> Stashed changes
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="%{MAPS_API_KEY}" />
@@ -76,9 +70,8 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
-<<<<<<< Updated upstream
-=======
 
         <activity
             android:name=".SendNotificationActivity"
@@ -145,7 +138,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
->>>>>>> Stashed changes
     </application>
 
 </manifest>

@@ -15,6 +15,9 @@ import com.example.myapplication.bus.Arrival;
 import com.example.myapplication.bus.ArrivalAPI;
 import com.example.myapplication.bus.ArrivalItem;
 import com.example.myapplication.bus.RetrofitArrivalClient;
+import com.example.myapplication.plate.Plate;
+import com.example.myapplication.plate.PlateAPI;
+import com.example.myapplication.plate.RetrofitPlateClient;
 import com.example.myapplication.station.RetrofitAPI;
 import com.example.myapplication.station.RetrofitClient;
 import com.example.myapplication.station.Station;
@@ -39,6 +42,7 @@ public class busActivity extends AppCompatActivity {
     private String fid; //일치하는 arsID찾기 위해
     private String busNm;
     private String station_key = "uJVPZ36cG4TAmsXg9mpWZHtlod+uxSREmceXmb8+hOU2NDP2G2XcyW4KOua4/PMe+I1P5/MemCn1pNVoNQS8Iw==";
+    private String plate_key = "uJVPZ36cG4TAmsXg9mpWZHtlod+uxSREmceXmb8+hOU2NDP2G2XcyW4KOua4/PMe+I1P5/MemCn1pNVoNQS8Iw==";
     private String type = "json";
     private String arsId;
     private TransferItem transferlist;
@@ -50,6 +54,13 @@ public class busActivity extends AppCompatActivity {
     private long delay = 0;
     private String endX;
     private String endY;
+
+    private String plateNo;
+    private String plateVehId = "";
+    private String arriveVehId;
+
+    private String ord;
+    private String busRouteId;
     SingleTonTTS tts;
 
     //arrmsg textview에 띄우기 ㅇ
@@ -62,10 +73,7 @@ public class busActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus);
         View view = findViewById(R.id.busRootView);
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         intent = getIntent();
         tts = tts.getInstance();
         tts.init(getApplicationContext());
@@ -98,11 +106,11 @@ public class busActivity extends AppCompatActivity {
                 } else {
                     tv1.setText(busNm + "번 버스가" + before1 + "합니다.");
                 }
-                //반복실행할 구문
             }
 
             public void onFinish() {
                 arriveInFo(arsId);
+                Log.d("plainNO", plateNo);
             }
         };
             //마지막에 실행할 구문
@@ -128,9 +136,7 @@ public class busActivity extends AppCompatActivity {
                     intent.putExtra("endY", endY);
                     intent.putExtra("transferItem", transferlist);
                     startActivity(intent);
-
                 }
-
             }
         });
     }
@@ -173,9 +179,10 @@ public class busActivity extends AppCompatActivity {
                         for(int i = 0 ; i < response.body().getAMsgBody().getArrivalItemList().size() ; i++){
                             if(busNm.equals(response.body().getAMsgBody().getArrivalItemList().get(i).getRtNm())){
                                 arrmsg1 = response.body().getAMsgBody().getArrivalItemList().get(i).getArrmsg1();
-                                //arrmsg2 = response.body().getAMsgBody().getArrivalItemList().get(i).getArrmsg2();
+                                busRouteId = response.body().getAMsgBody().getArrivalItemList().get(i).getBusRouteId();
+                                arriveVehId = response.body().getAMsgBody().getArrivalItemList().get(i).getVehId1();
+                                ord = response.body().getAMsgBody().getArrivalItemList().get(i).getStaOrd();
                                 time1 = response.body().getAMsgBody().getArrivalItemList().get(i).getTraTime1();
-                                //time2 = response.body().getAMsgBody().getArrivalItemList().get(i).getTraTime2();
                                 if(arrmsg1.trim().equals("곧 도착")){
                                    before1 = arrmsg1;
                                 }else{
@@ -186,20 +193,41 @@ public class busActivity extends AppCompatActivity {
                                         before1 += m1.group(1);
                                     }
                                 }
-                               /*Pattern p = Pattern.compile("\\[(.*?)\\]");
-                                Matcher m2 = p.matcher(arrmsg2);
-                                before2 = "";
-                                while(m2.find()){
-                                    before2 += m2.group(1);
-                                }*/
                                 CDT.start(); //CountDownTimer 실행
+                                break;
                             }
+                        }
+                        if(!arriveVehId.equals(plateVehId)) {
+                            plateInFo(fid, busRouteId, ord);
                         }
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Arrival> call, Throwable t) {
+                    Toast.makeText( busActivity.this, "network failure", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void plateInFo(String stId, String busRouteId, String ord) {
+        RetrofitPlateClient retrofitPlateClient = RetrofitPlateClient.getInstance();
+        if (retrofitPlateClient != null) {
+            PlateAPI plateAPI = RetrofitPlateClient.getPlateAPI();
+            plateAPI.getPlate(plate_key,stId ,busRouteId,ord, type).enqueue(new Callback<Plate>() {
+                @Override
+                public void onResponse(Call<Plate> call, Response<Plate> response) {
+                    if (response.isSuccessful()) {
+                        plateNo = response.body().getPmsgBody().getItemList().get(0).getPlainNo1();
+                        plateVehId = response.body().getPmsgBody().getItemList().get(0).getVehId1();
+                        Log.i("plateNo", plateNo);
+                        Log.i("plateVehId", plateVehId);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Plate> call, Throwable t) {
                     Toast.makeText( busActivity.this, "network failure", Toast.LENGTH_SHORT).show();
                 }
             });
