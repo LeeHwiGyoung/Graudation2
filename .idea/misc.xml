@@ -3,37 +3,18 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/ruagh/Documents/AndroidProjects/fortest/MyApplication4/app/src/main/res/drawable/blind_login.xml" value="0.1375" />
-        <entry key="..\:/Users/ruagh/Documents/AndroidProjects/fortest/MyApplication4/app/src/main/res/drawable/bus_login.xml" value="0.1375" />
-        <entry key="..\:/Users/ruagh/Documents/AndroidProjects/fortest/MyApplication4/app/src/main/res/drawable/sub_btn.xml" value="0.1375" />
-        <entry key="..\:/Users/ruagh/Documents/AndroidProjects/fortest/MyApplication4/app/src/main/res/drawable/textbox.xml" value="0.1375" />
-        <entry key="..\:/Users/ruagh/Documents/AndroidProjects/fortest/MyApplication4/app/src/main/res/layout/login2.xml" value="0.1" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/drawable/ic_google.xml" value="0.1" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/drawable/sub_btn.xml" value="0.1" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_blind_form.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_bus.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_bus_form.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_login.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_main.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_main2.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_main3.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_pop_in.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_send_notification.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/activity_sign_up.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/ruagh/Documents/yein-main/1024/MyApplication4/app/src/main/res/layout/view_holder_item.xml" value="0.10190217391304347" />
-        <entry key="..\:/Users/tbc07/Downloads/Graudation2-1/Graudation2-1/MyApplication4/app/src/main/res/layout/geo.xml" value="0.22826086956521738" />
-        <entry key="app/src/main/res/layout/activity_bus.xml" value="0.2453125" />
+        <entry key="app/src/main/res/layout/activity_bus.xml" value="0.18489583333333334" />
+        <entry key="app/src/main/res/layout/activity_choice.xml" value="0.2453125" />
+        <entry key="app/src/main/res/layout/activity_detector.xml" value="0.2453125" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.2453125" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2453125" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.2453125" />
-        <entry key="app/src/main/res/layout/activity_main3.xml" value="0.2453125" />
-        <entry key="app/src/main/res/layout/activity_pop_in.xml" value="0.15520833333333334" />
-        <entry key="app/src/main/res/layout/geo.xml" value="0.15520833333333334" />
-        <entry key="app/src/main/res/layout/searchviewholder.xml" value="0.2453125" />
-        <entry key="app/src/main/res/layout/view_holder_item.xml" value="0.2453125" />
+        <entry key="app/src/main/res/layout/activity_pop_in.xml" value="0.18489583333333334" />
+        <entry key="app/src/main/res/layout/geo.xml" value="0.3581749049429658" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

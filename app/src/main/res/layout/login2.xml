@@ -4,27 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
-
+    android:background="@color/backgroundcolor">
+    <!-->수정완<!-->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buslogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bus_login"
+        android:elevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.497" />
+        />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/blindlogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/blind_login"
+        android:elevation="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.502" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -44,6 +45,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginTop="200dp"
         android:translationZ="200dp"
+
         app:layout_constraintRight_toRightOf="@id/blindlogin"
         app:layout_constraintTop_toTopOf="@id/blindlogin"
         app:srcCompat="@drawable/user" />

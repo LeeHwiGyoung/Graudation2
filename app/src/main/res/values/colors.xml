@@ -18,4 +18,24 @@
     <color name="lightgray">#EDEDED</color>
     <color name="yellow">#FFFF00</color>
     <color name="yellow_shadow">#CDCD00</color>
+    <color name="backgroundcolor">#1B1A17</color>
+    <color name="buttonbackgroundcolor">#201F1A</color>
+    <color name="buttonshadow">#201F1B</color>
+    <color name="textColor">#FFE4CB84</color>
+    <color name="yellobuttonColor">#E4CA7E</color>
+    <color name="yellowbuttonShadow">#DDC991</color>
+
+
+
+
+    <!--텐서플로우 객체 탐지-->
+    <!-- TF Branding Orange -->
+    <color name="bounding_box_color">#FF6F00</color>
+    <color name="toolbar_background">#EEEEEE</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="bottom_sheet_background">#EEEEEE</color>
+    <color name="bottom_sheet_text_color">@android:color/black</color>
+    <color name="icActive">#FFFFFFFF</color>
+    <color name="icFocused">#DDFFFFFF</color>
+    <color name="icPressed">#AAFFFFFF</color>
 </resources>

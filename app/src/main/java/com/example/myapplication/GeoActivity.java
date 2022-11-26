@@ -21,6 +21,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentContainerView;
 
 import com.example.myapplication.transfer.TransferItem;
 import com.example.myapplication.tts.SingleTonTTS;
@@ -49,8 +50,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-
-import com.example.myapplication.tts.SingleTonTTS;
+import java.util.Timer;
 
 public class GeoActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager;
@@ -96,6 +96,7 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
     TextView road;
     TextView info;
     ImageButton refresh;
+    FragmentContainerView fragment;
 
     Intent intent;
     private TransferItem transferlist;
@@ -106,6 +107,8 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
     TextView next;
     TextView dist;
     TextView nodeend;
+    TextView remainwalk;
+    TextView arrivebtn;
 
     //이전 엑티비티에서 값을 받아옴
 
@@ -122,48 +125,88 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
     SingleTonTTS tts;
 
+    double prevD = 0;
+    double curD = 0;
+    int countforD = 0;
+    boolean boolforT = false;
+    double checkPrev;
+    double checkCur;
+    Timer timer = new Timer();
+
+    double prevStride = 0.65;
+
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState){
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.geo);
         guide = findViewById(R.id.guide);
         road = findViewById(R.id.road);
         info = findViewById(R.id.info);
-        refresh = findViewById(R.id.refresh);
+        //refresh = findViewById(R.id.refresh);
+        fragment = findViewById(R.id.fragment_container);
 
         //거리 확인을 위한 임의 텍스트뷰
         cur = findViewById(R.id.cur);
         next = findViewById(R.id.next);
         dist = findViewById(R.id.distance);
         nodeend = findViewById(R.id.nodeend);
+        remainwalk = findViewById(R.id.remainwalk);
+        arrivebtn = findViewById(R.id.arrivebtn);
 
         tts = tts.getInstance();
         tts.init(getApplicationContext());
+
 
         intent = getIntent();
         transferlist = (TransferItem) intent.getSerializableExtra("transferItem"); //transferlist추출 -> 이게 주 데이터
         endX = (String) intent.getSerializableExtra("endX");
         endY = (String) intent.getSerializableExtra("endY");
 
-        if(transferlist.getPathItemList().size() == 0){ //다음 좌표가 최종 도착지일 때
+
+        arrivebtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        tts.stop();
+                        if (transferlist.getPathItemList().size() == 0) { //다음 좌표가 최종 도착지일 때
+                            fusedLocationClient.removeLocationUpdates(locationCallback);
+                            tts.speak("목적지에 도착했습니다.");
+                        } else {  //다음 좌표가 정류장일 때
+                            fusedLocationClient.removeLocationUpdates(locationCallback);
+                            Intent intent = new Intent(GeoActivity.this, busActivity.class);
+                            intent.putExtra("endX", endX);
+                            intent.putExtra("endY", endY);
+                            intent.putExtra("transferItem", transferlist);
+                            startActivity(intent);
+                            finish();
+                        }
+
+                    }
+                }
+        );
+
+
+        if (transferlist.getPathItemList().size() == 0) { //다음 좌표가 최종 도착지일 때
             end_lon = endX;
             end_lat = endY;
             complete = 1;
             Log.e("다음 목적지", "도착지");
-        }
-        else {  //다음 좌표가 정류장일 때
+        } else {  //다음 좌표가 정류장일 때
             end_lon = String.valueOf(transferlist.getPathItemList().get(0).getFx());
             end_lat = String.valueOf(transferlist.getPathItemList().get(0).getFy());
             Log.e("다음 목적지", "정류장");
         }
 
+//        fetchData("986521", "땡땡 정거장"); // fcm 디버깅용
+/*
         for (int i = 0; i < transferlist.getPathItemList().size(); i++) {
             Log.d("버스번호", transferlist.getPathItemList().get(i).getRouteNm());
             Log.d("itemTransferItem fname", transferlist.getPathItemList().get(i).getFname());
             Log.d("fx", String.valueOf(transferlist.getPathItemList().get(i).getFx()));
             Log.d("fy", String.valueOf(transferlist.getPathItemList().get(i).getFy()));
         }
-
+*/
         //걸음 수 측정
         nStep = 0;
         stepToGo = 0;
@@ -193,9 +236,8 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
         }
 
 
-
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-            if(location != null){
+            if (location != null) {
                 lat = location.getLatitude();
                 lon = location.getLongitude();
                 Log.e("location", String.valueOf(lat));
@@ -208,22 +250,21 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                     }
                 }).start();
 
+                tts.speak("경로 안내를 시작합니다");
+
                 Handler api_handler = new Handler();
-                api_handler.postDelayed(new Runnable(){
-                    public void run(){
+                api_handler.postDelayed(new Runnable() {
+                    public void run() {
                         parseResult();
                     }
                 }, 2500);
 
 
-
-            }
-            else {
+            } else {
                 Log.e("location", "location null");
             }
         });
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-
 
 
         //티맵 api
@@ -232,24 +273,36 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
 
         //새로고침
-        refresh.setOnClickListener(new View.OnClickListener() {
+        fragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(distance!=0){    //출발 이후라고  가정, 목적지가 있는 경우
-                    if(nStep==0){
-                        guideText = "약 "+(int)(calD(nextLat, lat2, nextLon, lon2)/0.65)+"걸음 남았습니다.";
-                    }
-                    else {
-                        guideText = "약 " + (int) (calD(nextLat, lat2, nextLon, lon2) / (realD / nStep)) + "걸음 남았습니다.";
+                if (distance != 0) {    //출발 이후라고  가정, 목적지가 있는 경우
+                    int remainStep = (int) (calD(nextLat, lat2, nextLon, lon2) / 0.65);
+                    if (remainStep == 0) {
+                        guideText = "약 " + (int) (calD(nextLat, lat2, nextLon, lon2) / 0.65) + "걸음 남았습니다.";
+                    } else {
+                        guideText = "약 " + remainStep + "걸음 남았습니다.";
+                        if (realD / nStep != 0) {
+                            prevStride = realD / nStep;
+                        }
+                        Log.e("남은 거리", String.valueOf((int) (calD(nextLat, lat2, nextLon, lon2))));
+                        Log.e("이동한 거리", String.valueOf(realD));
+                        Log.e("걸음 수", String.valueOf(nStep));
+                        Log.e("보폭", String.valueOf((int) (realD / nStep)));
+                        remainwalk.setText(guideText);
                     }
                     guide.setText(guideText);
                     Log.i("걸음", guideText);
                     tts.speak(guideText);
+
+                    realD = 0;  //노드 간 이동거리 초기화
+                    nStep = 0;  //노드 간 걸음 수 초기화
                 }
             }
         });
 
     }
+
 
     //센서를 통한 걸음 수 측정 / nStep에 누적
     @Override
@@ -339,7 +392,7 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
     }
 
     //경로 정보 파싱
-    private void parseResult(){
+    private void parseResult() {
         JSONParser jsonParser = new JSONParser();
 
         Log.i("test", result);
@@ -350,13 +403,13 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
             JSONArray parse_item = (JSONArray) jsonObj.get("features");
             totalIndex = parse_item.size();
             list = new ArrayList<com.example.myapplication.geo.datalist>();
-            for(int i=0; i<parse_item.size(); i++){
+            for (int i = 0; i < parse_item.size(); i++) {
                 obj = (org.json.simple.JSONObject) parse_item.get(i);
                 org.json.simple.JSONObject sample = (org.json.simple.JSONObject) obj.get("geometry");
                 org.json.simple.JSONObject geo = (org.json.simple.JSONObject) obj.get("properties");
                 item = new com.example.myapplication.geo.datalist();
                 item.setType((String) sample.get("type"));
-                if(sample.get("type").equals(str)){    //point data인 경우
+                if (sample.get("type").equals(str)) {    //point data인 경우
                     item.setIndex(Integer.parseInt(String.valueOf(geo.get("index"))));
                     item.setDescription((String) geo.get("description"));
                     item.setTurnType(String.valueOf(geo.get("turnType")));
@@ -370,8 +423,7 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                     Log.i("경도", String.valueOf(coor.get(0)));
                     Log.i("위도", String.valueOf(coor.get(1)));
                     Log.i("turntype", (String.valueOf(geo.get("turnType"))));
-                }
-                else{   //line data인 경우
+                } else {   //line data인 경우
                     item.setIndex(Integer.parseInt(String.valueOf(geo.get("index"))));
                     item.setDescription((String) geo.get("description"));
 
@@ -400,10 +452,10 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
     private LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
-            if(locationResult != null) {
+            if (locationResult != null) {
                 for (Location location : locationResult.getLocations()) {
 
-                    if (location1 == null && curIndex==0) {    //출발 (이전 위치가 null인 상태)
+                    if (location1 == null && curIndex == 0) {    //출발 (이전 위치가 null인 상태)
                         Log.i("출발", "start");
 
                         location1 = location;   //location1 = 출발지의 위도, 경도
@@ -414,14 +466,14 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                         nextIndex = 1;
                         distance = 0;
 
-                        roadType = list.get(curIndex+1).getRoadType();
-                        facilityType = list.get(curIndex+1).getFacilityType();
+                        roadType = list.get(curIndex + 1).getRoadType();
+                        facilityType = list.get(curIndex + 1).getFacilityType();
 
                         Log.i("현재 노드", String.valueOf(curIndex));
 
                         //다음 point(노드) 찾기
-                        while(!list.get(nextIndex).getType().equals(str)){
-                            nextIndex+=1;
+                        while (!list.get(nextIndex).getType().equals(str)) {
+                            nextIndex += 1;
                         }
 
                         Log.i("다음 노드", String.valueOf(nextIndex));
@@ -436,58 +488,73 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
 
                         //현재 노드에서 다음 노드까지 경로 길이 (line data 중 distance)
-                        for(int i=curIndex+1; i<nextIndex; i++){
+                        for (int i = curIndex + 1; i < nextIndex; i++) {
                             distance += Double.valueOf(list.get(i).getDistance());
                         }
 
 
-                        dist.setText("실제: "+distance + " 계산: " + calD(lat1, nextLat, lon1, nextLon));
+                        prevD = calD(lat1, nextLat, lon1, nextLon);
+                        curD = prevD;
+                        checkPrev = prevD;
+                        dist.setText("실제: " + distance + " 계산: " + prevD);
+
+                        /*TimerTask timerTask = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.e("방향 체크", String.valueOf(curD-checkPrev));
+                                if((curD-checkPrev) > 4){
+                                    tts.speak("잘못된 방향입니다");
+                                    checkPrev = curD;
+                                }
+                            }
+                        };
+                        timer.schedule(timerTask, 0, 4000);*/
 
 
                         //출발지에서의 안내 - (거리 / 성별 평균 보폭)으로 걸음 수만 안내 => 방향은 추후
                         //성별이 남자인지, 여자인지에 따라 값 변화 필요
 
                         //n 걸음 이동
-                        guideText = "약 "+(int)(distance/0.65)+"걸음 이동하세요";
+                        guideText = "약 " + (int) (distance / 0.65) + "걸음 이동하세요";
                         Log.i("걸음", guideText);
                         guide.setText(guideText);
 
                         switch (facilityType) { //일반보행자도로가 아닌 경우 (터널, 육교, 횡단보도, 계단 등)
                             case "1":
                                 facilityName = "교량";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "2":
                                 facilityName = "터널";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "3":
                                 facilityName = "고가도로";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "11":
                                 facilityName = "일반보행자도로";
-                                infoText = facilityName+"입니다";
+                                infoText = facilityName + "입니다";
                                 break;
                             case "12":
                                 facilityName = "육교";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "14":
                                 facilityName = "지하보도";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "15":
                                 facilityName = "횡단보도";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "16":
                                 facilityName = "대형시설물이동통로";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             case "17":
                                 facilityName = "계단";
-                                infoText = facilityName+"이니 유의하시기 바랍니다";
+                                infoText = facilityName + "이니 유의하시기 바랍니다";
                                 break;
                             default:
                                 infoText = "";
@@ -495,80 +562,76 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                         Log.i("시설물 정보", infoText);
                         info.setText(infoText);
 
-                        if(roadType.equals(carA)){ //차도와 인도가 분리되어 있지 않은 경우
+                        if (roadType.equals(carA)) { //차도와 인도가 분리되어 있지 않은 경우
                             roadText = "차량 통행 가능 구간입니다";
                             Log.i("도로 타입", roadText);
                             road.setText(roadText);
-                        }
-                        else {
+                        } else {
                             road.setText("");
                         }
 
                         tts.speak(guideText);
                         Handler handler = new Handler();
-                        handler.postDelayed(new Runnable(){
-                            public void run(){
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
                                 tts.speak(infoText);
                             }
                         }, 3000);
-                        handler.postDelayed(new Runnable(){
-                            public void run(){
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
                                 tts.speak(roadText);
                             }
                         }, 4000);
 
 
-                    }
-                    else {
+                    } else {
                         location2 = location;   //location2 = 실시간 현재 위치의 위도, 경도
                         lat2 = location.getLatitude();
                         lon2 = location.getLongitude();
 
-
                         nodeend.setText("가는 중 ~");
 
+                        curD = calD(nextLat, lat2, nextLon, lon2);
 
-                        //다음 노드 도착 시 (5m 이내 접근)
-                        Log.i("노드까지의 거리", String.valueOf(calD(nextLat, lat2, nextLon, lon2)));
-                        if(calD(nextLat, lat2, nextLon, lon2)<5){
+                        //다음 노드 도착 시 (5m 이내 접근) 3m로 수정
+                        Log.i("노드까지의 거리", String.valueOf(curD));
+                        if (curD < 3) {
                             //진동
                             Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                             vibrator.vibrate(500);
 
                             nodeend.setText("노드 도착");
 
-                            if(nextIndex+1 == totalIndex){ //마지막 노드에 도착한 경우 //activity 전환
-                                if(complete == 0){  //정류장 도착
+                            if (nextIndex + 1 == totalIndex) { //마지막 노드에 도착한 경우 //activity 전환
+                                if (complete == 0) {  //정류장 도착
                                     Log.i("도착", "end");
                                     guideText = "정류장에 도착하였습니다";
                                     tts.speak(guideText);
                                     fusedLocationClient.removeLocationUpdates(locationCallback);
                                     Intent intent = new Intent(GeoActivity.this, busActivity.class);
-                                    intent.putExtra("endX" , endX);
+                                    intent.putExtra("endX", endX);
                                     intent.putExtra("endY", endY);
                                     intent.putExtra("transferItem", transferlist);
                                     startActivity(intent);
                                     finish();
-                                }
-                                else if (complete == 1){  //최종 목적지 도착 완료
+                                } else if (complete == 1) {  //최종 목적지 도착 완료
                                     Log.i("도착", "complete");
                                     guideText = "목적지에 도착하였습니다";
                                     tts.speak(guideText);
                                     fusedLocationClient.removeLocationUpdates(locationCallback);
                                 }
 
-                            }
-                            else{   //경유지인 경우
+                            } else {   //경유지인 경우
                                 distance = 0;
                                 curIndex = nextIndex;
-                                roadType = list.get(curIndex+1).getRoadType();
-                                facilityType = list.get(curIndex+1).getFacilityType();
+                                roadType = list.get(curIndex + 1).getRoadType();
+                                facilityType = list.get(curIndex + 1).getFacilityType();
                                 turnType = list.get(curIndex).getTurnType();
 
                                 //다음 point(노드) 찾기
-                                nextIndex = nextIndex+1;
-                                while(!list.get(nextIndex).getType().equals(str)){
-                                    nextIndex+=1;
+                                nextIndex = nextIndex + 1;
+                                while (!list.get(nextIndex).getType().equals(str)) {
+                                    nextIndex += 1;
                                 }
                                 Log.i("다음 노드", String.valueOf(nextIndex));
 
@@ -577,12 +640,12 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                                 nextLon = list.get(nextIndex).getLongitude();
 
                                 //현재 노드에서 다음 노드까지 경로 길이 (line data 중 distance)
-                                for(int i=curIndex+1; i<nextIndex; i++){
+                                for (int i = curIndex + 1; i < nextIndex; i++) {
                                     distance += Double.valueOf(list.get(i).getDistance());
                                 }
 
                                 //turnType
-                                switch (turnType){
+                                switch (turnType) {
                                     case "11":
                                         turnText = "직진 후 ";
                                         break;
@@ -648,19 +711,21 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                                 }
 
                                 //n 걸음 이동
-                                if(nStep==0){
-                                    stepToGo = (int)(distance/0.65);
+                                if ((int) (distance / 0.65) == 0) {
+                                    stepToGo = (int) (distance / 0.65);
+                                } else {
+                                    stepToGo = (int) (distance / 0.65);
+                                    if (realD / nStep != 0) {
+                                        prevStride = 0.65;
+                                    }
                                 }
-                                else {
-                                    stepToGo = (int)(distance/(realD/nStep));
-                                }
-                                guideText = turnText + "약 "+stepToGo+"걸음 이동하세요";
+                                guideText = turnText + "약 " + stepToGo + "걸음 이동하세요";
                                 realD = 0;  //노드 간 이동거리 초기화
                                 nStep = 0;  //노드 간 걸음 수 초기화
                                 Log.i("걸음", guideText);
                                 guide.setText(guideText);
 
-                                if(roadType.equals(carA)){ //차도와 인도가 분리되어 있지 않은 경우
+                                if (roadType.equals(carA)) { //차도와 인도가 분리되어 있지 않은 경우
                                     roadText = "차량 통행 가능 구간입니다";
                                     Log.i("도로 타입", roadText);
                                     road.setText(roadText);
@@ -669,39 +734,39 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
                                 switch (facilityType) { //일반보행자도로가 아닌 경우 (터널, 육교, 횡단보도, 계단 등)
                                     case "1":
                                         facilityName = "교량";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "2":
                                         facilityName = "터널";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "3":
                                         facilityName = "고가도로";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "11":
                                         facilityName = "일반보행자도로";
-                                        infoText = facilityName+"입니다";
+                                        infoText = facilityName + "입니다";
                                         break;
                                     case "12":
                                         facilityName = "육교";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "14":
                                         facilityName = "지하보도";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "15":
                                         facilityName = "횡단보도";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "16":
                                         facilityName = "대형시설물이동통로";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     case "17":
                                         facilityName = "계단";
-                                        infoText = facilityName+"이니 유의하시기 바랍니다";
+                                        infoText = facilityName + "이니 유의하시기 바랍니다";
                                         break;
                                     default:
                                         infoText = " ";
@@ -711,13 +776,13 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
                                 tts.speak(guideText);
                                 Handler handler = new Handler();
-                                handler.postDelayed(new Runnable(){
-                                    public void run(){
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
                                         tts.speak(infoText);
                                     }
                                 }, 3000);
-                                handler.postDelayed(new Runnable(){
-                                    public void run(){
+                                handler.postDelayed(new Runnable() {
+                                    public void run() {
                                         tts.speak(roadText);
                                     }
                                 }, 4000);
@@ -730,11 +795,12 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
                         cur.setText(lat1 + ", " + lon1);
                         next.setText(nextLat + ", " + nextLon);
-                        dist.setText("실제: "+distance + " 계산: " + calD(lat2, nextLat, lon2, nextLon));
+                        dist.setText("실제: " + distance + " 계산: " + calD(lat2, nextLat, lon2, nextLon));
 
 
                         lat1 = lat2;
                         lon1 = lon2;
+                        prevD = curD;
                     }
                 }
             }
@@ -753,15 +819,15 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
     private static double calD(double lat1, double lat2, double lon1, double lon2) {
         double dist;
         double radius = 6371;
-        double toRadian = Math.PI/180;
+        double toRadian = Math.PI / 180;
 
-        double deltaLatitude = Math.abs(lat2 - lat1)*toRadian;
-        double deltaLongitude = Math.abs(lon2 - lon1)*toRadian;
+        double deltaLatitude = Math.abs(lat2 - lat1) * toRadian;
+        double deltaLongitude = Math.abs(lon2 - lon1) * toRadian;
 
-        double sinDeltaLat = Math.sin(deltaLatitude/2);
-        double sinDeltaLng = Math.sin(deltaLongitude/2);
-        double squareRoot = Math.sqrt(sinDeltaLat*sinDeltaLat+Math.cos(lat1*toRadian)*Math.cos(lat2*toRadian)*sinDeltaLng*sinDeltaLng);
-        dist = 1000*2*radius*Math.asin(squareRoot);
+        double sinDeltaLat = Math.sin(deltaLatitude / 2);
+        double sinDeltaLng = Math.sin(deltaLongitude / 2);
+        double squareRoot = Math.sqrt(sinDeltaLat * sinDeltaLat + Math.cos(lat1 * toRadian) * Math.cos(lat2 * toRadian) * sinDeltaLng * sinDeltaLng);
+        dist = 1000 * 2 * radius * Math.asin(squareRoot);
 
         //원래 썼던 식 !!
         /*double theta = lon1 - lon2;
@@ -780,7 +846,6 @@ public class GeoActivity extends AppCompatActivity implements SensorEventListene
 
         return dist;
     }
-
 
 
 }

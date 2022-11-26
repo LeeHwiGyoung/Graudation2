@@ -5,13 +5,19 @@
     tools:context=".busActivity"
     android:orientation="vertical"
     android:id="@+id/busRootView"
+    android:background="@color/backgroundcolor"
     android:gravity="center">
 
 
     <TextView
             android:id="@+id/textView"
-            android:layout_width="271dp"
-            android:layout_height="63dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="TextView"
+            android:textColor="@color/textColor"
+            android:ems="10"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:padding="10dp"
            />
 </LinearLayout>

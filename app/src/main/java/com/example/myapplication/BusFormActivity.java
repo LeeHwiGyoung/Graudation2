@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,12 +52,20 @@ public class BusFormActivity extends AppCompatActivity {
     private void storeDrivers() {
         EditText busName = binding.busName;
         EditText busage = binding.busage;
-        EditText busSex = binding.busSex;
         EditText busNum = binding.busNum;
+        RadioButton busMan = binding.manBox;
+        RadioButton busWoman = binding.womanBox;
+
+        String gender = "";
+
+        if (busMan.isChecked()){
+            gender = "남성";
+        }else if(busWoman.isChecked()){
+            gender = "여성";
+        }
 
         String name = busName.getText().toString();
         String age = busage.getText().toString();
-        String gender = busSex.getText().toString();
         String busNumber = busNum.getText().toString();
 
         if (name.isEmpty() || age.isEmpty() || gender.isEmpty() || busNumber.isEmpty()){

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,8 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.Console;
+
 public class PermissionActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocationClient;
@@ -43,14 +46,16 @@ public class PermissionActivity extends AppCompatActivity {
     }
 
 
+    //권한 체크
     private void checkPermission(){
+        //권한이 모두 허용된 경우, 위치 설정 체크
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            Log.i("PERMISSION", "권한 허용 O, 위치 설정 체크");
             checkLocationSetting();
-            /*Intent intent = new Intent(PermissionActivity.this, GeoActivity.class);
-            startActivity(intent);
-
-            finish();*/
-        } else {
+        }
+        //권한이 허용되지 않은 경우, 권한 요청
+        else {
+            Log.i("PERMISSION", "권한 허용 X, 권한 요청");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACTIVITY_RECOGNITION, Manifest.permission.CAMERA}, 1000);
         }
     }
@@ -60,39 +65,16 @@ public class PermissionActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1000) {
             for (int i = 0; i < permissions.length; i++) {
-                if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[i])) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        checkLocationSetting();
-                        /*Intent intent = new Intent(PermissionActivity.this, MainActivity.class);
-                        startActivity(intent);*/
-
-                        finish();
-                    } else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("위치 권한이 필요합니다.");
-                        builder.setMessage("[권한] 설정에서 위치 권한을 허용해야 합니다.");
-                        builder.setPositiveButton("설정으로 가기", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                                intent.setData(uri);
-                                startActivity(intent);
-                            }
-                        });
-                        /*.setNegativeButton("종료", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        });*/
-                        AlertDialog alert = builder.create();
-                        alert.show();
-                    }
-                    break;
+                //권한 설정이 되지 않은 경우
+                Log.i("PERMISSION", "권한 설정 X, 앱 종료");
+                if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                    moveTaskToBack(true); // 태스크를 백그라운드로 이동
+                    finishAndRemoveTask(); // 액티비티 종료 + 태스크 리스트에서 지우기
+                    android.os.Process.killProcess(android.os.Process.myPid()); // 앱 프로세스 종료
                 }
             }
+            //권한 설정이 완료된 경우
+            checkLocationSetting();
         }
     }
 
@@ -108,6 +90,7 @@ public class PermissionActivity extends AppCompatActivity {
                 .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                        Log.i("PERMISSION", "위치 설정 O, 액티비티 전환");
                         Intent intent = new Intent(PermissionActivity.this, SignInActivity.class);
                         startActivity(intent);
 
@@ -118,6 +101,7 @@ public class PermissionActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         int statusCode = ((ApiException) e).getStatusCode();
+                        Log.i("PERMISSION", "위치 설정 X");
                         switch (statusCode) {
                             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
                                 try {

@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     /*검색 API에 사용되는 값*/
     private String search = "search"; //search
-    private String text = "홍대입구역"; //장소명
+    private String text = "연세대"; //장소명
     private String type = "place"; //place
     private String format = "json"; //json
     private String errorformat = "json"; //json
@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<ItemsEntity> item;  //검색 API 결과를 받아들일 어레이리스트
     private SearchAPI searchAPI; //검색 API 호출에 사용하는 클라이언트
 
-    private String startX = "126.9243"; // 홍익대학교 앞
-    private String startY  = "37.5528";
+    private String startX; // 홍익대학교 앞
+    private String startY;
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        /*fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if(location != null){
 
                 startX = String.valueOf(location.getLongitude());
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.e("??", startX);
             }
-        });*/
+        });
 
         if(Build.VERSION.SDK_INT >= 23){
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET,
@@ -191,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
         public void onError(int error) {
             // 네트워크 또는 인식 오류가 발생했을 때 호출
             String message;
-
             switch (error) {
                 case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
                     message = "말하는 시간이 초과되었습니다.";
